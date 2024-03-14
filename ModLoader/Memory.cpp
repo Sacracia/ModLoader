@@ -61,10 +61,12 @@ namespace Native {
 		intptr_t alloc = (intptr_t)VirtualAllocEx(hProcess, 0, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (alloc != 0)
 			allocations[alloc] = size;
+		printf("Allocated at %llX %llu bytes\n", alloc, size);
 		return alloc;
 	}
 
 	void Memory::Free(intptr_t addr, size_t size) {
 		bool status = VirtualFreeEx(hProcess, (LPVOID)addr, size, MEM_DECOMMIT);
+		printf("Deallocated at %llX %llu bytes\n", addr, size);
 	}
 }

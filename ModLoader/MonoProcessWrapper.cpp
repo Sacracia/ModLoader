@@ -6,8 +6,8 @@ int ModLoader::MonoProcess::LoadMod(array<System::Byte>^ assemblyBytes, int byte
     unsigned char* pby = p;
     char* pch = reinterpret_cast<char*>(pby);
     char* nspace = (char*)(Marshal::StringToHGlobalAnsi(_namespace)).ToPointer();
-    char* cl = (char*)(Marshal::StringToHGlobalAnsi(_namespace)).ToPointer();
-    char* meth = (char*)(Marshal::StringToHGlobalAnsi(_namespace)).ToPointer();
+    char* cl = (char*)(Marshal::StringToHGlobalAnsi(_class)).ToPointer();
+    char* meth = (char*)(Marshal::StringToHGlobalAnsi(_method)).ToPointer();
     return mp->Inject(pch, bytesLen, nspace, cl, meth);
 }
 
