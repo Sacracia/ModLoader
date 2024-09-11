@@ -15,36 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ConsoleInjectorTest\asm_builder.cpp">
+    <ClCompile Include="asm_builder.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConsoleInjectorTest\injector_test.cpp">
+    <ClCompile Include="injector_test.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConsoleInjectorTest\memory.cpp">
+    <ClCompile Include="memory.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConsoleInjectorTest\mono_process.cpp">
+    <ClCompile Include="mono_process.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConsoleInjectorTest\native_process.cpp">
+    <ClCompile Include="native_process.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ConsoleInjectorTest\asm_builder.h">
+    <ClInclude Include="asm_builder.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ConsoleInjectorTest\memory.h">
+    <ClInclude Include="memory.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ConsoleInjectorTest\mono_process.h">
+    <ClInclude Include="mono_process.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ConsoleInjectorTest\native_process.h">
+    <ClInclude Include="native_process.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ConsoleInjectorTest\stdafx.h">
+    <ClInclude Include="stdafx.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

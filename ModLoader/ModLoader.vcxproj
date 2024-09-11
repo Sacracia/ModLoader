@@ -127,18 +127,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ConsoleInjectorTest\asm_builder.cpp" />
-    <ClCompile Include="..\..\ConsoleInjectorTest\injector_test.cpp" />
-    <ClCompile Include="..\..\ConsoleInjectorTest\memory.cpp" />
-    <ClCompile Include="..\..\ConsoleInjectorTest\mono_process.cpp" />
-    <ClCompile Include="..\..\ConsoleInjectorTest\native_process.cpp" />
+    <ClCompile Include="asm_builder.cpp" />
+    <ClCompile Include="injector_test.cpp" />
+    <ClCompile Include="memory.cpp" />
+    <ClCompile Include="mono_process.cpp" />
+    <ClCompile Include="native_process.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ConsoleInjectorTest\asm_builder.h" />
-    <ClInclude Include="..\..\ConsoleInjectorTest\memory.h" />
-    <ClInclude Include="..\..\ConsoleInjectorTest\mono_process.h" />
-    <ClInclude Include="..\..\ConsoleInjectorTest\native_process.h" />
-    <ClInclude Include="..\..\ConsoleInjectorTest\stdafx.h" />
+    <ClInclude Include="asm_builder.h" />
+    <ClInclude Include="memory.h" />
+    <ClInclude Include="mono_process.h" />
+    <ClInclude Include="native_process.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
