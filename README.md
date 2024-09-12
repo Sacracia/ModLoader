@@ -1,26 +1,26 @@
 # ModLoader
-Mono Framework Interaction / Injection Library for .NET (C++/CLI).
 
-## Features
-- Core is in pure C++ for reliabilty and performance
-- Native MonoProcess class is exposed to .NET throught a custom managed wrapper
-- Allows making dependency injection
-- Allows easy injection into Mono namespace
-## Usage
-```c#
-Process target = Process.GetProcessesByName("EtG")[0];
-using (MonoProcess mp = new MonoProcess(target.Id))
-{
-    int status = mp.LoadDependencyFrom("C:\\Users\\Sacracia\\Harmony.2.2.2.0\\net35\\0Harmony.dll");
-    if (status == 0)
-    {
-        status = mp.LoadModFrom("ETGCheatMenu.dll", "ETGCheatMenu", "Loader", "Init");
-        if (status == 0)
-        {
-            Console.WriteLine("Success!");
-        }
-    }
-}
+Console application for injecting mono assemblies and c++ dlls
+
+### Features
+
+Supports loading .net assemblies into both x86 / x64 processes.    
+Supports loading c++ native dlls into both x86 / x64 processes.  
+
+### Usage
+
+create file config.cfg that contains commands for injector.  
+
+First line must match a target process. Second line and further are commands. List of commands:
+
+1.  “mono-dep path\_to\_file” - injecting .net dependency
+2.  “mono-ex path\_to\_file namespace class method” - injecting .net assembly and executing static method
+3.  “native path\_to\_file” - injecting native c++ dll
+
+#### Example:
+
+```plaintext
+hollow_knight.exe
+mono-dep 0Harmony.dll
+mono-ex HollowKnight_v1.5.78_ModMenu.dll HollowKnightModMenu Mod Load
 ```
-## Download
-You can find the most recent releases here: https://github.com/Sacracia/ModLoader/releases
