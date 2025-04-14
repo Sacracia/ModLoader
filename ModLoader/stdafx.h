@@ -11,5 +11,7 @@
 #include <stdexcept>
 #include <format>
 #include <filesystem>
+#include <string>
+#include <vector>
 
 //#define DEVELOP_MODE

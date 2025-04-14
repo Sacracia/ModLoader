@@ -7,11 +7,10 @@
 #include "mono_process.h"
 
 namespace Injector {
-    void InjectDll(char* process_name, char* dll_path) {
+    void InjectDll(DWORD process_id, char* dll_path) {
         if (!std::filesystem::exists(dll_path))
             throw std::runtime_error("File doesn\'t exist");
 
-        uint32_t process_id = GetProcessId(process_name);
         void* process_handle = OpenProcess(PROCESS_ALL_ACCESS, true, process_id);
         NativeProcess native_process(process_handle, process_id);
 
@@ -30,11 +29,10 @@ namespace Injector {
         GetExitCodeThread(thread, &exitCode);
     }
 
-    void InjectAssembly(char* process_name, char* dll_path) {
+    void InjectAssembly(DWORD process_id, char* dll_path) {
         if (!std::filesystem::exists(dll_path))
             throw std::runtime_error("File doesn\'t exist");
 
-        uint32_t process_id = GetProcessId(process_name);
         void* process_handle = OpenProcess(PROCESS_ALL_ACCESS, true, process_id);
         MonoProcess mono_process(process_handle, process_id);
         mono_process.Init();
@@ -42,11 +40,10 @@ namespace Injector {
         intptr_t assembly = mono_process.OpenAssemblyFrom(true, dll_path);
     }
 
-    void InjectAssemblyEx(char* process_name, char* dll_path, char* name_space, char* class_name, char* method_name) {
+    void InjectAssemblyEx(DWORD process_id, char* dll_path, char* name_space, char* class_name, char* method_name) {
         if (!std::filesystem::exists(dll_path))
             throw std::runtime_error("File doesn\'t exist");
 
-        uint32_t process_id = GetProcessId(process_name);
         void* process_handle = OpenProcess(PROCESS_ALL_ACCESS, true, process_id);
         MonoProcess mono_process(process_handle, process_id);
         mono_process.Init();
