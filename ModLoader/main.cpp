@@ -1,126 +1,127 @@
 ﻿#include "stdafx.h"
-#include "injector.h"
 
-#include <fstream>
+#include "process.h"
 
-static bool IsUnityProcess(DWORD processId, bool includeIL2CPP) {
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, processId);
-    MODULEENTRY32 me{};
-    me.dwSize = sizeof(MODULEENTRY32);
+static std::wstring GetProcessName(DWORD pid)
+{
+    HMODULE hMod;
+    DWORD cbNeeded;
+    wchar_t buffer[MAX_PATH];
 
-    if (Module32First(snapshot, &me)) {
-        do {
-            if (wcsncmp(me.szModule, L"mono", 4) == 0 || includeIL2CPP && wcscmp(me.szModule, L"GameAssembly.dll") == 0) {
-                CloseHandle(snapshot);
-                return true;
-            }
-        } while (Module32Next(snapshot, &me));
-    }
-    CloseHandle(snapshot);
-    return false;
-}
-
-struct Process {
-    std::wstring processName;
-    DWORD processId;
-};
-
-DWORD ChooseProcess(bool includeIL2CPP) {
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 pe{};
-    pe.dwSize = sizeof(PROCESSENTRY32);
-
-    std::vector<Process> processes{};
-
-    if (Process32First(snapshot, &pe)) {
-        do {
-            if (IsUnityProcess(pe.th32ProcessID, includeIL2CPP))
-                processes.emplace_back(pe.szExeFile, pe.th32ProcessID);
-        } while (Process32Next(snapshot, &pe));
-    }
-    CloseHandle(snapshot);
-
-    std::string input;
-    if (processes.size() == 1)
-        return processes[0].processId;
-    for (Process p : processes) {
-        while (true) {
-            std::wcout << p.processName << " ? (Y/n): ";
-            std::cin >> input;
-            if (input[0] == 'n')
-                break;
-            if (input[0] == 'Y')
-                return p.processId;
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded)) 
+    {
+        if (GetModuleBaseNameW(hProcess, hMod, buffer, MAX_PATH)) 
+        {
+            return buffer;
         }
     }
 
-    return 0;
+    return {};
 }
 
-std::vector<std::string> Split(std::string& s) {
-    std::vector<std::string> argv;
-    int left = -1;
-    int right = 0;
-    while (left != s.size()) {
-        while (right < s.size() && s[right] != ' ')
-            ++right;
-        argv.push_back(std::string{ s.begin() + 1 + left, s.begin() + right });
-        left = right++;
+static bool LoadModIntoProcess(DWORD pid, const char* path)
+{
+    size_t nBytesNeeded = strlen(path) + 1;
+    HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, FALSE, pid);
+    LPVOID address = VirtualAllocEx(hProcess, 0, nBytesNeeded, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (!address)
+    {
+        std::cout << "Unable to allocate address\n";
+        return false;
     }
-    return argv;
+    
+    SIZE_T nBytes;
+    BOOL status = WriteProcessMemory(hProcess, address, path, nBytesNeeded, &nBytes);
+    if (status == 0 || nBytesNeeded != nBytes)
+    {
+        std::cout << "Unable to write the whole path\n";
+        return false;
+    }
+
+
 }
 
 int main(int argc, char* argv[])
 {
-    try {
-        const char* config_path = "config.cfg";
-        if (!std::filesystem::exists(config_path))
-            throw std::runtime_error("Config doesnt exist\n");
-
-        DWORD processId = 0;
-
-        std::ifstream config(config_path);
-        std::string line;
-        while (std::getline(config, line)) {
-            auto argv = Split(line);
-            if (argv[0] == "mono-dep") {
-                if (!processId && (processId = ChooseProcess(false)) == 0)
-                    throw std::runtime_error("No game to load into");
-                std::string full_dll_path = std::filesystem::absolute(argv[1]).string();
-                std::cout << "Loading dependency " << argv[1].data() << ": ";
-                Injector::InjectAssembly(processId, full_dll_path.data());
-                std::cout << "OK\n";
-            }
-            if (argv[0] == "mono-ex") {
-                if (!processId && (processId = ChooseProcess(false)) == 0)
-                    throw std::runtime_error("No game to load into");
-                std::string full_dll_path = std::filesystem::absolute(argv[1]).string();
-                std::cout << "Loading mod " << argv[1].data() << ": ";
-                Injector::InjectAssemblyEx(processId, full_dll_path.data(), argv[2].data(), argv[3].data(), argv[4].data());
-                std::cout << "OK\n";
-            }
-            if (argv[0] == "native") {
-                if (!processId && (processId = ChooseProcess(true)) == 0)
-                    throw std::runtime_error("No game to load into");
-                std::string full_dll_path = std::filesystem::absolute(argv[1]).string();
-                std::cout << "Loading dll " << argv[1].data() << ": ";
-                Injector::InjectDll(processId, full_dll_path.data());
-                std::cout << "OK\n";
-            }
-            /*if (argv[0] == "mono-ej") {
-                std::cout << "Unloading mod " << argv[1].data() << ": ";
-                Injector::EjectAssemblyEx(game.data(), argv[1].data(), argv[2].data(), argv[3].data(), argv[4].data());
-                std::cout << "OK\n";
-            }*/
+    try
+    {
+        if (argc < 2)
+        {
+            std::cout << "Usage: Drag and drop file\n";
+            system("pause");
+            return 0;
         }
-        std::cout << "All modules loaded\n";
+
+        std::filesystem::path dllPath{ argv[1] };
+
+        if (!std::filesystem::exists(dllPath))
+        {
+            std::cout << "Non-existing file passed!\n";
+            system("pause");
+            return 0;
+        }
+
+        if (dllPath.extension() != ".dll")
+        {
+            std::cout << "Invalid file passed!\n";
+            system("pause");
+            return 0;
+        }
+
+        static std::vector<HWND> s_UnityWindows{};
+
+        WNDENUMPROC enumProc = [](HWND hwnd, LPARAM lParam) -> BOOL
+            {
+                wchar_t buff[64]{ 0 };
+                GetClassNameW(hwnd, buff, sizeof(buff) / sizeof(wchar_t));
+
+                if (wcsncmp(buff, L"UnityWndClass", 13) == 0)
+                    s_UnityWindows.push_back(hwnd);
+
+                return TRUE;
+            };
+
+        EnumWindows(enumProc, 0);
+
+        DWORD pid = 0;
+        std::cout << "Unity games:\n";
+        for (HWND hwnd : s_UnityWindows)
+        {
+            if (GetWindowThreadProcessId(hwnd, &pid) != 0)
+            {
+                Process process{ pid };
+                process.SetReady();
+                std::wcout << process.GetName() << '\n';
+            }
+        }
+
+        if (pid > 0)
+        {
+            Process process{ pid };
+            process.SetReady();
+
+            std::wcout << "Loading mod into " << process.GetName() << " ...\n";
+
+            size_t pathLen = strlen(argv[1]) + 1;
+            intptr_t pathAddr = process.Allocate(pathLen);
+            process.WriteString(pathAddr, argv[1]);
+
+            intptr_t proc = process.GetProcAddress(process.GetModuleBaseAddress(L"KERNEL32.DLL"), "LoadLibraryA");
+            HANDLE thread = process.CreateThread(0, 0, (LPTHREAD_START_ROUTINE)proc, (void*)pathAddr, 0, nullptr);
+            DWORD exitCode;
+            WaitForSingleObject(thread, INFINITE);
+            if (GetExitCodeThread(thread, &exitCode) == 0)
+                throw std::runtime_error("Get exit code thread error");
+
+            std::cout << "Exit code thread = " << std::hex << exitCode << '\n';
+        }
     }
-    catch (const std::runtime_error& error) {
-        std::cout << error.what() << "\n";
+    catch (const std::runtime_error& err)
+    {
+        std::cout << err.what() << '\n';
     }
-    catch (const std::exception& ex) {
-        std::cout << ex.what() << "\n";
-    }
+
     system("pause");
     return 0;
 }

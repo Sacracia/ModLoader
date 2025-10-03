@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <stdint.h>
+#include <psapi.h>
 
 // C++ Standard Library headers
 #include <iostream>
@@ -13,5 +14,6 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <fstream>
 
 //#define DEVELOP_MODE

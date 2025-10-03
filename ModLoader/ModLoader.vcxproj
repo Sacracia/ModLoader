@@ -119,10 +119,10 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <OmitFramePointers>
       </OmitFramePointers>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies />
+      <AdditionalDependencies>user32.lib</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -132,19 +132,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="asm_builder.cpp" />
-    <ClCompile Include="injector.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="memory.cpp" />
-    <ClCompile Include="mono_process.cpp" />
-    <ClCompile Include="native_process.cpp" />
+    <ClCompile Include="process.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="asm_builder.h" />
-    <ClInclude Include="injector.h" />
-    <ClInclude Include="memory.h" />
-    <ClInclude Include="mono_process.h" />
-    <ClInclude Include="native_process.h" />
+    <ClInclude Include="process.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
